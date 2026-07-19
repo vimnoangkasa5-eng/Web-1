@@ -1,652 +1,452 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VIMNO | Futuristic Experience</title>
-    <style>
-        :root {
-            --neon-cyan: #00f0ff;
-            --neon-magenta: #ff00ff;
-            --neon-purple: #b300ff;
-            --dark-bg: #0a0a0f;
-            --glass-bg: rgba(255, 255, 255, 0.03);
-            --border-glow: rgba(0, 240, 255, 0.3);
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VIMNO // SYSTEM ONLINE</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#080b12;
+    --bg-soft:#0d1219;
+    --panel:#101724;
+    --panel-line:rgba(255,184,107,.16);
+    --amber:#ffb86b;
+    --amber-dim:rgba(255,184,107,.45);
+    --cyan:#4fd8ff;
+    --magenta:#ff5fa8;
+    --green:#7dffb0;
+    --text:#e9edf5;
+    --muted:#7c879c;
+    --mono:'JetBrains Mono', monospace;
+    --sans:'Sora', sans-serif;
+    --accent:var(--amber);
+    --accent-dim:var(--amber-dim);
+    --nav-h:96px;
+  }
+  body.theme-cyan{ --accent:var(--cyan); --accent-dim:rgba(79,216,255,.45); }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html{ scroll-behavior:smooth; }
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--sans);
+    line-height:1.6;
+    overflow-x:hidden;
+    position:relative;
+  }
+  body::before{
+    content:'';
+    position:fixed; inset:0;
+    background-image:radial-gradient(rgba(255,184,107,.10) 1px, transparent 1px);
+    background-size:34px 34px;
+    pointer-events:none;
+    z-index:0;
+    opacity:.5;
+  }
+  a{ color:inherit; text-decoration:none; }
+  ::selection{ background:var(--accent); color:#080b12; }
+  :focus-visible{ outline:2px solid var(--accent); outline-offset:3px; }
 
-        body {
-            font-family: 'Courier New', 'Consolas', monospace;
-            background: var(--dark-bg);
-            color: #e0e0e0;
-            overflow-x: hidden;
-            cursor: crosshair;
-            min-height: 100vh;
-            position: relative;
-        }
+  .scanline{
+    position:fixed; left:0; right:0; height:2px;
+    background:linear-gradient(90deg, transparent, var(--accent), transparent);
+    opacity:.35; mix-blend-mode:screen; pointer-events:none; z-index:2;
+    animation:scan 7s linear infinite;
+  }
+  @keyframes scan{ 0%{ top:0; } 100%{ top:100%; } }
 
-        /* === PARTICLE CANVAS === */
-        #particleCanvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
-            pointer-events: none;
-        }
+  /* ---------- TICKER ---------- */
+  .ticker{
+    position:fixed; top:0; left:0; right:0; height:34px;
+    background:var(--bg-soft);
+    border-bottom:1px solid var(--panel-line);
+    overflow:hidden; z-index:50;
+    display:flex; align-items:center;
+  }
+  .ticker-track{
+    display:flex; width:max-content; white-space:nowrap;
+    animation:ticker-scroll 42s linear infinite;
+    font-family:var(--mono); font-size:.72rem; letter-spacing:.06em;
+  }
+  .ticker:hover .ticker-track{ animation-play-state:paused; }
+  .ticker-track span{ padding:0 1.4rem; color:var(--muted); border-right:1px solid var(--panel-line); }
+  .ticker-track span b{ color:var(--accent); font-weight:700; }
+  .up{ color:var(--green) !important; }
+  .down{ color:var(--magenta) !important; }
+  @keyframes ticker-scroll{ from{ transform:translateX(0); } to{ transform:translateX(-50%); } }
 
-        /* === GRID BACKGROUND === */
-        .grid-bg {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image:
-                linear-gradient(rgba(0, 240, 255, 0.04) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 240, 255, 0.04) 1px, transparent 1px);
-            background-size: 50px 50px;
-            z-index: 0;
-            pointer-events: none;
-            animation: gridPulse 4s ease-in-out infinite;
-        }
+  /* ---------- NAV ---------- */
+  nav{
+    position:fixed; top:34px; left:0; right:0; z-index:49;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:1rem 2rem;
+    background:rgba(8,11,18,.72);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--panel-line);
+  }
+  .logo{ font-family:var(--mono); font-weight:800; letter-spacing:.05em; font-size:1rem; }
+  .logo::after{ content:'_'; color:var(--accent); animation:blink 1.1s step-end infinite; }
+  @keyframes blink{ 50%{ opacity:0; } }
+  .nav-links{ display:flex; gap:2rem; align-items:center; font-family:var(--mono); font-size:.78rem; letter-spacing:.08em; }
+  .nav-links a{ color:var(--muted); transition:color .25s; position:relative; }
+  .nav-links a:hover{ color:var(--accent); }
+  .nav-right{ display:flex; align-items:center; gap:1.4rem; }
+  .clock{ font-family:var(--mono); font-size:.75rem; color:var(--muted); text-align:right; white-space:nowrap; }
+  .clock b{ color:var(--accent); }
+  .theme-toggle{
+    font-family:var(--mono); font-size:.68rem; letter-spacing:.05em;
+    background:transparent; border:1px solid var(--panel-line); color:var(--muted);
+    padding:.4rem .7rem; cursor:pointer; border-radius:2px; transition:.25s;
+  }
+  .theme-toggle:hover{ border-color:var(--accent); color:var(--accent); }
+  .burger{ display:none; background:none; border:1px solid var(--panel-line); color:var(--text); font-family:var(--mono); padding:.4rem .6rem; cursor:pointer; }
 
-        @keyframes gridPulse {
-            0%,
-            100% {
-                opacity: 0.5;
-            }
-            50% {
-                opacity: 1;
-            }
-        }
+  /* ---------- HERO ---------- */
+  .hero{
+    min-height:100vh;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; position:relative; z-index:1;
+    padding:calc(var(--nav-h) + 3rem) 1.5rem 4rem;
+  }
+  .hero-glow{
+    position:absolute; inset:0; pointer-events:none; z-index:-1;
+    background:radial-gradient(480px circle at var(--gx,50%) var(--gy,40%), var(--accent-dim), transparent 70%);
+    transition:background .1s;
+  }
+  .eyebrow{
+    font-family:var(--mono); font-size:.75rem; letter-spacing:.25em; color:var(--accent);
+    margin-bottom:1.6rem; opacity:.9;
+  }
+  .wordmark{
+    font-family:var(--mono); font-weight:800;
+    font-size:clamp(3.2rem, 14vw, 9.5rem);
+    letter-spacing:.02em; line-height:.95;
+    position:relative; color:var(--text);
+    text-shadow:0 0 40px var(--accent-dim);
+  }
+  .wordmark::before, .wordmark::after{
+    content:'VIMNO'; position:absolute; top:0; left:0; right:0; opacity:0;
+  }
+  .wordmark.glitching::before{
+    opacity:.7; color:var(--cyan); clip-path:inset(10% 0 60% 0); transform:translate(-6px,-2px);
+    animation:none;
+  }
+  .wordmark.glitching::after{
+    opacity:.7; color:var(--magenta); clip-path:inset(55% 0 15% 0); transform:translate(6px,2px);
+  }
+  .tagline{
+    font-family:var(--mono); color:var(--muted); font-size:1rem;
+    margin-top:1.6rem; min-height:1.6em;
+  }
+  .tagline .accent{ color:var(--accent); }
+  .cursor-blink{ animation:blink 1s step-end infinite; color:var(--accent); }
+  .hero-cta{ display:flex; gap:1rem; margin-top:2.6rem; flex-wrap:wrap; justify-content:center; }
+  .btn{
+    font-family:var(--mono); font-size:.8rem; letter-spacing:.06em;
+    padding:.85rem 1.6rem; border:1px solid var(--accent); color:var(--accent);
+    border-radius:2px; transition:.25s; background:transparent; cursor:pointer;
+  }
+  .btn:hover{ background:var(--accent); color:#080b12; }
+  .btn.ghost{ border-color:var(--panel-line); color:var(--muted); }
+  .btn.ghost:hover{ border-color:var(--muted); color:var(--text); background:transparent; }
+  .scroll-hint{
+    position:absolute; bottom:2rem; left:50%; transform:translateX(-50%);
+    font-family:var(--mono); font-size:.65rem; color:var(--muted); letter-spacing:.15em;
+    display:flex; flex-direction:column; align-items:center; gap:.5rem;
+  }
+  .scroll-hint .line{ width:1px; height:32px; background:linear-gradient(var(--accent), transparent); animation:pulse-h 1.8s ease-in-out infinite; }
+  @keyframes pulse-h{ 0%,100%{ opacity:.3; } 50%{ opacity:1; } }
 
-        /* === MAIN CONTAINER === */
-        .main-container {
-            position: relative;
-            z-index: 1;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
+  /* ---------- SECTION SHELL ---------- */
+  section{ position:relative; z-index:1; padding:6rem 1.5rem; max-width:1180px; margin:0 auto; }
+  .sec-head{ margin-bottom:3rem; }
+  .sec-eyebrow{ font-family:var(--mono); font-size:.72rem; letter-spacing:.2em; color:var(--accent); margin-bottom:.8rem; }
+  .sec-title{ font-family:var(--sans); font-weight:600; font-size:clamp(1.8rem,4vw,2.6rem); }
+  .sec-title span{ color:var(--muted); font-weight:300; }
 
-        /* === HEADER / NAVBAR === */
-        .navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px 30px;
-            background: var(--glass-bg);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--border-glow);
-            border-radius: 20px;
-            margin-bottom: 30px;
-            position: sticky;
-            top: 20px;
-            z-index: 100;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 240, 255, 0.1);
-        }
+  .reveal{ opacity:0; transform:translateY(24px); transition:opacity .7s ease, transform .7s ease; }
+  .reveal.in-view{ opacity:1; transform:translateY(0); }
 
-        .logo {
-            font-size: 2.5rem;
-            font-weight: 900;
-            letter-spacing: 8px;
-            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-magenta));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            text-shadow: none;
-            animation: logoGlitch 3s infinite;
-            position: relative;
-        }
+  /* ---------- SYSTEMS GRID ---------- */
+  .grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:1.4rem; }
+  .card{
+    background:var(--panel); border:1px solid var(--panel-line); border-radius:4px;
+    padding:1.8rem; position:relative; overflow:hidden; transition:border-color .3s, transform .3s;
+  }
+  .card:hover{ border-color:var(--accent-dim); transform:translateY(-3px); }
+  .card-head{ display:flex; justify-content:space-between; align-items:center; margin-bottom:.9rem; }
+  .card-id{ font-family:var(--mono); font-size:.68rem; color:var(--muted); letter-spacing:.1em; }
+  .dot{ width:7px; height:7px; border-radius:50%; background:var(--green); box-shadow:0 0 8px var(--green); animation:blink 1.6s step-end infinite; }
+  .card h3{ font-family:var(--mono); font-size:1.02rem; letter-spacing:.04em; margin-bottom:.6rem; }
+  .card p{ color:var(--muted); font-size:.9rem; margin-bottom:1.2rem; }
 
-        .logo::after {
-            content: 'VIMNO';
-            position: absolute;
-            top: 2px;
-            left: 2px;
-            background: linear-gradient(135deg, var(--neon-magenta), var(--neon-cyan));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            opacity: 0.5;
-            animation: logoGlitch 2s infinite reverse;
-        }
+  .mini-chart{ width:100%; height:90px; display:block; }
 
-        @keyframes logoGlitch {
-            0%,
-            90%,
-            100% {
-                transform: translate(0);
-            }
-            92% {
-                transform: translate(-3px, 2px);
-            }
-            94% {
-                transform: translate(3px, -2px);
-            }
-            96% {
-                transform: translate(-2px, -2px);
-            }
-            98% {
-                transform: translate(2px, 2px);
-            }
-        }
+  .code-box{
+    background:var(--bg-soft); border:1px solid var(--panel-line); border-radius:3px;
+    padding:.8rem .9rem; font-family:var(--mono); font-size:.76rem; color:var(--cyan); min-height:84px;
+  }
+  .code-box .c-muted{ color:var(--muted); }
 
-        .nav-links {
-            display: flex;
-            gap: 25px;
-            list-style: none;
-        }
+  .stat-track{ height:6px; background:var(--bg-soft); border-radius:3px; overflow:hidden; margin-top:.6rem; }
+  .stat-fill{ height:100%; width:0%; background:linear-gradient(90deg, var(--accent), var(--cyan)); transition:width 1.8s ease; }
+  .stat-label{ display:flex; justify-content:space-between; font-family:var(--mono); font-size:.68rem; color:var(--muted); margin-top:.5rem; }
 
-        .nav-links a {
-            color: #ccc;
-            text-decoration: none;
-            font-size: 0.95rem;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            padding: 8px 16px;
-            border-radius: 25px;
-            transition: all 0.3s ease;
-            position: relative;
-            border: 1px solid transparent;
-        }
+  .loop{ display:flex; flex-wrap:wrap; gap:.5rem; font-family:var(--mono); font-size:.68rem; color:var(--muted); align-items:center; }
+  .loop b{ color:var(--accent); }
+  .loop .arrow{ color:var(--panel-line); }
 
-        .nav-links a:hover {
-            color: var(--neon-cyan);
-            border-color: var(--neon-cyan);
-            box-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
-            text-shadow: 0 0 10px var(--neon-cyan);
-        }
+  /* ---------- TERMINAL ---------- */
+  .term-window{
+    background:var(--bg-soft); border:1px solid var(--panel-line); border-radius:6px; overflow:hidden;
+  }
+  .term-bar{ display:flex; align-items:center; gap:.5rem; padding:.7rem 1rem; border-bottom:1px solid var(--panel-line); }
+  .term-bar span{ width:10px; height:10px; border-radius:50%; background:var(--panel-line); }
+  .term-bar .title{ margin-left:.8rem; font-family:var(--mono); font-size:.7rem; color:var(--muted); }
+  .term-body{ padding:1.2rem 1.4rem; font-family:var(--mono); font-size:.82rem; min-height:260px; max-height:340px; overflow-y:auto; }
+  .term-body p{ margin-bottom:.5rem; white-space:pre-wrap; }
+  .term-body .prompt{ color:var(--accent); }
+  .term-body .out{ color:var(--muted); }
+  .term-input-row{ display:flex; align-items:center; gap:.5rem; margin-top:.3rem; }
+  .term-input-row .prompt{ color:var(--accent); white-space:nowrap; }
+  .term-input-row input{
+    flex:1; background:transparent; border:none; outline:none; color:var(--text);
+    font-family:var(--mono); font-size:.82rem;
+  }
 
-        /* === HERO SECTION === */
-        .hero {
-            text-align: center;
-            padding: 80px 20px;
-            position: relative;
-            margin-bottom: 40px;
-        }
+  /* ---------- FOOTER ---------- */
+  footer{ position:relative; z-index:1; border-top:1px solid var(--panel-line); padding:3rem 1.5rem 2.5rem; text-align:center; }
+  footer .f-word{ font-family:var(--mono); font-size:.75rem; letter-spacing:.2em; color:var(--muted); }
+  footer .f-word b{ color:var(--accent); }
+  footer .back-top{ display:inline-block; margin-top:1.2rem; font-family:var(--mono); font-size:.7rem; color:var(--muted); border:1px solid var(--panel-line); padding:.5rem 1rem; border-radius:2px; }
+  footer .back-top:hover{ color:var(--accent); border-color:var(--accent-dim); }
 
-        .hero-glitch-title {
-            font-size: 8rem;
-            font-weight: 900;
-            letter-spacing: 20px;
-            position: relative;
-            display: inline-block;
-            color: #fff;
-            text-shadow:
-                0 0 10px var(--neon-cyan),
-                0 0 40px var(--neon-cyan),
-                0 0 80px var(--neon-purple);
-            animation: heroFloat 6s ease-in-out infinite;
-        }
+  @media (max-width:760px){
+    .nav-links{ position:fixed; top:calc(34px + 60px); left:0; right:0; background:var(--bg-soft); flex-direction:column; padding:1.4rem; gap:1.2rem; border-bottom:1px solid var(--panel-line); transform:translateY(-140%); transition:transform .3s; }
+    .nav-links.open{ transform:translateY(0); }
+    .burger{ display:block; }
+    .clock{ display:none; }
+    .grid{ grid-template-columns:1fr; }
+  }
 
-        @keyframes heroFloat {
-            0%,
-            100% {
-                transform: translateY(0);
-            }
-            25% {
-                transform: translateY(-15px);
-            }
-            50% {
-                transform: translateY(0);
-            }
-            75% {
-                transform: translateY(10px);
-            }
-        }
-
-        .hero-subtitle {
-            font-size: 1.2rem;
-            letter-spacing: 10px;
-            color: var(--neon-cyan);
-            margin-top: 20px;
-            animation: fadeInUp 1s ease-out;
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* === HOLOGRAM RING === */
-        .hologram-ring {
-            width: 250px;
-            height: 250px;
-            border-radius: 50%;
-            border: 2px solid var(--neon-cyan);
-            margin: 40px auto;
-            position: relative;
-            animation: ringRotate 8s linear infinite;
-            box-shadow:
-                0 0 20px rgba(0, 240, 255, 0.5),
-                inset 0 0 20px rgba(0, 240, 255, 0.2);
-        }
-
-        .hologram-ring::before {
-            content: '';
-            position: absolute;
-            top: -5px;
-            left: -5px;
-            right: -5px;
-            bottom: -5px;
-            border-radius: 50%;
-            border: 1px solid var(--neon-magenta);
-            animation: ringRotate 6s linear infinite reverse;
-        }
-
-        .hologram-ring::after {
-            content: '⚡';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 4rem;
-            animation: iconPulse 2s ease-in-out infinite;
-        }
-
-        @keyframes ringRotate {
-            from {
-                transform: rotate(0deg);
-            }
-            to {
-                transform: rotate(360deg);
-            }
-        }
-        @keyframes iconPulse {
-            0%,
-            100% {
-                opacity: 0.6;
-                transform: translate(-50%, -50%) scale(1);
-            }
-            50% {
-                opacity: 1;
-                transform: translate(-50%, -50%) scale(1.3);
-            }
-        }
-
-        /* === CARDS GRID === */
-        .cards-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 25px;
-            margin-bottom: 50px;
-        }
-
-        .card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            border: 1px solid var(--border-glow);
-            border-radius: 20px;
-            padding: 30px;
-            transition: all 0.4s ease;
-            position: relative;
-            overflow: hidden;
-            cursor: pointer;
-        }
-
-        .card::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: conic-gradient(transparent, rgba(0, 240, 255, 0.1), transparent, rgba(255, 0, 255, 0.1),
-                    transparent);
-            animation: cardSpin 6s linear infinite;
-            opacity: 0;
-            transition: opacity 0.4s;
-        }
-
-        .card:hover::before {
-            opacity: 1;
-        }
-
-        .card:hover {
-            transform: translateY(-10px);
-            box-shadow:
-                0 20px 50px rgba(0, 0, 0, 0.6),
-                0 0 30px rgba(0, 240, 255, 0.3);
-            border-color: var(--neon-cyan);
-        }
-
-        .card-content {
-            position: relative;
-            z-index: 1;
-        }
-
-        .card-icon {
-            font-size: 3rem;
-            margin-bottom: 15px;
-            display: block;
-        }
-        .card h3 {
-            font-size: 1.4rem;
-            letter-spacing: 4px;
-            color: var(--neon-cyan);
-            margin-bottom: 10px;
-        }
-        .card p {
-            font-size: 0.9rem;
-            color: #aaa;
-            line-height: 1.6;
-        }
-        .card-stat {
-            font-size: 2.5rem;
-            font-weight: 900;
-            color: #fff;
-            text-shadow: 0 0 20px var(--neon-magenta);
-            margin-top: 15px;
-        }
-
-        @keyframes cardSpin {
-            from {
-                transform: rotate(0deg);
-            }
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        /* === TERMINAL WINDOW === */
-        .terminal {
-            background: rgba(0, 0, 0, 0.7);
-            border: 1px solid var(--border-glow);
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 40px;
-            font-family: 'Consolas', 'Courier New', monospace;
-            box-shadow: 0 0 30px rgba(0, 240, 255, 0.1);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-        }
-        .terminal-header {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-        .terminal-dot {
-            width: 14px;
-            height: 14px;
-            border-radius: 50%;
-        }
-        .dot-red {
-            background: #ff5f56;
-        }
-        .dot-yellow {
-            background: #ffbd2e;
-        }
-        .dot-green {
-            background: #27c93f;
-        }
-        .terminal-body {
-            color: var(--neon-cyan);
-            line-height: 1.8;
-            font-size: 0.9rem;
-        }
-        .terminal-prompt {
-            color: var(--neon-magenta);
-        }
-        .terminal-cursor {
-            display: inline-block;
-            width: 10px;
-            height: 20px;
-            background: var(--neon-cyan);
-            animation: blink 1s step-end infinite;
-            vertical-align: middle;
-        }
-        @keyframes blink {
-            50% {
-                opacity: 0;
-            }
-        }
-
-        /* === SCAN LINE EFFECT === */
-        .scanlines {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: repeating-linear-gradient(0deg,
-                    transparent,
-                    transparent 2px,
-                    rgba(0, 0, 0, 0.03) 2px,
-                    rgba(0, 0, 0, 0.03) 4px);
-            pointer-events: none;
-            z-index: 999;
-        }
-
-        /* === BUTTON === */
-        .btn-futuristic {
-            display: inline-block;
-            padding: 15px 40px;
-            background: transparent;
-            border: 2px solid var(--neon-cyan);
-            color: var(--neon-cyan);
-            font-family: inherit;
-            font-size: 1rem;
-            letter-spacing: 5px;
-            text-transform: uppercase;
-            cursor: pointer;
-            border-radius: 50px;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-            text-decoration: none;
-        }
-        .btn-futuristic:hover {
-            background: var(--neon-cyan);
-            color: #000;
-            box-shadow: 0 0 40px var(--neon-cyan);
-            text-shadow: none;
-        }
-
-        /* === PROGRESS BAR === */
-        .progress-container {
-            margin: 20px 0;
-        }
-        .progress-label {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 8px;
-            font-size: 0.85rem;
-            letter-spacing: 2px;
-        }
-        .progress-bar {
-            height: 8px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            overflow: hidden;
-            position: relative;
-        }
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--neon-cyan), var(--neon-magenta));
-            border-radius: 10px;
-            animation: progressGlow 2s ease-in-out infinite;
-            position: relative;
-        }
-        .progress-fill::after {
-            content: '';
-            position: absolute;
-            right: 0;
-            top: 0;
-            width: 20px;
-            height: 100%;
-            background: #fff;
-            border-radius: 50%;
-            box-shadow: 0 0 15px #fff;
-        }
-        @keyframes progressGlow {
-            0%,
-            100% {
-                box-shadow: 0 0 10px var(--neon-cyan);
-            }
-            50% {
-                box-shadow: 0 0 25px var(--neon-magenta);
-            }
-        }
-
-        /* === FOOTER === */
-        .footer {
-            text-align: center;
-            padding: 30px;
-            border-top: 1px solid var(--border-glow);
-            margin-top: 50px;
-            letter-spacing: 3px;
-            font-size: 0.8rem;
-            color: #666;
-        }
-
-        /* === RESPONSIVE === */
-        @media (max-width: 768px) {
-            .hero-glitch-title {
-                font-size: 3.5rem;
-                letter-spacing: 10px;
-            }
-            .navbar {
-                flex-direction: column;
-                gap: 15px;
-                padding: 15px;
-            }
-            .nav-links {
-                flex-wrap: wrap;
-                justify-content: center;
-                gap: 10px;
-            }
-            .cards-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
+  @media (prefers-reduced-motion:reduce){
+    *{ animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; }
+  }
+</style>
 </head>
 <body>
 
-    <!-- Scanlines overlay -->
-    <div class="scanlines"></div>
+<div class="scanline"></div>
 
-    <!-- Grid background -->
-    <div class="grid-bg"></div>
+<div class="ticker">
+  <div class="ticker-track" id="tickerTrack"></div>
+</div>
 
-    <!-- Particle canvas -->
-    <canvas id="particleCanvas"></canvas>
+<nav>
+  <div class="logo">VIMNO</div>
+  <div class="nav-links" id="navLinks">
+    <a href="#systems">SYSTEMS</a>
+    <a href="#terminal">TERMINAL</a>
+    <a href="#log">LOG</a>
+  </div>
+  <div class="nav-right">
+    <div class="clock" id="clock">--:--:--<br><span style="font-size:.65rem">-- --- ----</span></div>
+    <button class="theme-toggle" id="themeToggle">MODE: AMBER</button>
+    <button class="burger" id="burger">≡</button>
+  </div>
+</nav>
 
-    <!-- Main Content -->
-    <div class="main-container">
+<section class="hero" id="hero">
+  <div class="hero-glow" id="heroGlow"></div>
+  <div class="eyebrow">// IDENTITAS TERDETEKSI</div>
+  <h1 class="wordmark" id="wordmark">VIMNO</h1>
+  <p class="tagline"><span id="typewriter"></span><span class="cursor-blink">_</span></p>
+  <div class="hero-cta">
+    <a href="#systems" class="btn">ENTER_SYSTEM ↓</a>
+    <a href="#terminal" class="btn ghost">OPEN_TERMINAL</a>
+  </div>
+  <div class="scroll-hint"><span>SCROLL</span><span class="line"></span></div>
+</section>
 
-        <!-- Navigation -->
-        <nav class="navbar">
-            <div class="logo">VIMNO</div>
-            <ul class="nav-links">
-                <li><a href="#home">Beranda</a></li>
-                <li><a href="#features">Fitur</a></li>
-                <li><a href="#stats">Statistik</a></li>
-                <li><a href="#terminal">Terminal</a></li>
-                <li><a href="#contact">Kontak</a></li>
-            </ul>
-        </nav>
+<section id="systems">
+  <div class="sec-head reveal">
+    <div class="sec-eyebrow">04 MODULES DETECTED</div>
+    <h2 class="sec-title">Systems <span>online.</span></h2>
+  </div>
+  <div class="grid">
 
-        <!-- Hero Section -->
-        <section class="hero" id="home">
-            <div class="hero-glitch-title">VIMNO</div>
-            <p class="hero-subtitle">⟡ FUTURISTIC DIGITAL EXPERIENCE ⟡</p>
-            <div class="hologram-ring"></div>
-            <p style="color:#aaa; letter-spacing:3px; margin-top:20px;">
-                Sistem Terintegrasi • Kecepatan Quantum • Keamanan Maksimal
-            </p>
-        </section>
+    <article class="card reveal">
+      <div class="card-head"><span class="card-id">[SYS.01] MARKET_ANALYSIS</span><span class="dot"></span></div>
+      <h3>ANALISIS PASAR KRIPTO</h3>
+      <p>Membaca pola harga, data on-chain, dan sentimen pasar secara sistematis — bukan tebak-tebakan.</p>
+      <canvas class="mini-chart" id="chart1"></canvas>
+    </article>
 
-        <!-- Feature Cards -->
-        <section id="features">
-            <h2 style="text-align:center; letter-spacing:6px; color:var(--neon-cyan); margin-bottom:30px;">
-                ▸ FITUR UNGGULAN ◂
-            </h2>
-            <div class="cards-grid">
-                <div class="card">
-                    <div class="card-content">
-                        <span class="card-icon">🧠</span>
-                        <h3>AI CORE</h3>
-                        <p>Kecerdasan buatan dengan pemrosesan neural network generasi terbaru. Kecepatan analisis data hingga 10x lebih cepat.</p>
-                        <div class="card-stat">99.9%</div>
-                        <small style="color:#888;">Akurasi Prediksi</small>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card-content">
-                        <span class="card-icon">🔐</span>
-                        <h3>QUANTUM SAFE</h3>
-                        <p>Enkripsi quantum-resistant melindungi data dari serangan komputer kuantum masa depan.</p>
-                        <div class="card-stat">4096-bit</div>
-                        <small style="color:#888;">Enkripsi</small>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card-content">
-                        <span class="card-icon">⚡</span>
-                        <h3>SPEED BOOST</h3>
-                        <p>Infrastruktur edge computing dengan latensi ultra-rendah untuk performa real-time.</p>
-                        <div class="card-stat">&lt;1ms</div>
-                        <small style="color:#888;">Latensi</small>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card-content">
-                        <span class="card-icon">🌐</span>
-                        <h3>MESH NET</h3>
-                        <p>Jaringan mesh terdesentralisasi yang tangguh dan selalu terhubung di seluruh dunia.</p>
-                        <div class="card-stat">10K+</div>
-                        <small style="color:#888;">Node Aktif</small>
-                    </div>
-                </div>
-            </div>
-        </section>
+    <article class="card reveal">
+      <div class="card-head"><span class="card-id">[SYS.02] AI_LAB</span><span class="dot"></span></div>
+      <h3>EKSPERIMEN AI &amp; TOOLING</h3>
+      <p>Menyusun alur kerja dan agen AI untuk mempercepat riset, belajar, dan membangun proyek.</p>
+      <div class="code-box"><span id="codeType"></span><span class="cursor-blink">▌</span></div>
+    </article>
 
-        <!-- Stats Progress Bars -->
-        <section id="stats" style="margin-bottom:40px;">
-            <h2 style="text-align:center; letter-spacing:6px; color:var(--neon-magenta); margin-bottom:30px;">
-                ▸ SYSTEM STATUS ◂
-            </h2>
-            <div class="progress-container">
-                <div class="progress-label"><span>CPU LOAD</span><span>78%</span></div>
-                <div class="progress-bar"><div class="progress-fill" style="width:78%;"></div></div>
-            </div>
-            <div class="progress-container">
-                <div class="progress-label"><span>MEMORY</span><span>62%</span></div>
-                <div class="progress-bar"><div class="progress-fill" style="width:62%;"></div></div>
-            </div>
-            <div class="progress-container">
-                <div class="progress-label"><span>NETWORK</span><span>95%</span></div>
-                <div class="progress-bar"><div class="progress-fill" style="width:95%;"></div></div>
-            </div>
-            <div class="progress-container">
-                <div class="progress-label"><span>QUANTUM STABILITY</span><span>88%</span></div>
-                <div class="progress-bar"><div class="progress-fill" style="width:88%;"></div></div>
-            </div>
-        </section>
+    <article class="card reveal">
+      <div class="card-head"><span class="card-id">[SYS.03] PHYSICAL_PROTOCOL</span><span class="dot"></span></div>
+      <h3>PERFORMA FISIK</h3>
+      <p>Membangun stamina dan performa lewat pendekatan berbasis data dan bukti, bukan tren.</p>
+      <div class="stat-track"><div class="stat-fill" id="statFill"></div></div>
+      <div class="stat-label"><span>CONSISTENCY</span><span id="statNum">0%</span></div>
+    </article>
 
-        <!-- Terminal Section -->
-        <section id="terminal">
-            <h2 style="text-align:center; letter-spacing:6px; color:var(--neon-cyan); margin-bottom:20px;">
-                ▸ VIMNO TERMINAL ◂
-            </h2>
-            <div class="terminal">
-                <div class="terminal-header">
-                    <div class="terminal-dot dot-red"></div>
-                    <div class="term
+    <article class="card reveal">
+      <div class="card-head"><span class="card-id">[SYS.04] LEARNING_ENGINE</span><span class="dot"></span></div>
+      <h3>META-LEARNING LOOP</h3>
+      <p>Menguji pemahaman lewat metode Feynman: sederhanakan, jelaskan, uji, ulangi.</p>
+      <div class="loop">
+        <b>SIMPLIFY</b><span class="arrow">→</span><b>EXPLAIN</b><span class="arrow">→</span><b>TEST</b><span class="arrow">→</span><b>REPEAT</b><span class="arrow">↻</span>
+      </div>
+    </article>
+
+  </div>
+</section>
+
+<section id="terminal">
+  <div class="sec-head reveal">
+    <div class="sec-eyebrow">// AKSES LANGSUNG</div>
+    <h2 class="sec-title">Coba <span>terminalnya.</span></h2>
+  </div>
+  <div class="term-window reveal">
+    <div class="term-bar">
+      <span></span><span></span><span></span>
+      <span class="title">guest@vimno — /home/system</span>
+    </div>
+    <div class="term-body" id="termBody">
+      <p><span class="prompt">guest@vimno:~$</span> whoami</p>
+      <p class="out">VIMNO — mahasiswa, market watcher, AI explorer.</p>
+      <p><span class="prompt">guest@vimno:~$</span> status</p>
+      <p class="out">ONLINE. Sedang membangun sistem &amp; belajar setiap hari.</p>
+      <p class="out">Ketik 'help' untuk daftar perintah.</p>
+    </div>
+    <div class="term-body" style="border-top:1px solid var(--panel-line); min-height:auto; max-height:none;">
+      <div class="term-input-row">
+        <span class="prompt">guest@vimno:~$</span>
+        <input type="text" id="termInput" placeholder="ketik perintah..." autocomplete="off">
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="log">
+  <div class="sec-head reveal">
+    <div class="sec-eyebrow">// CATATAN SISTEM</div>
+    <h2 class="sec-title">Log <span>terakhir.</span></h2>
+  </div>
+  <div class="card reveal" style="max-width:640px;">
+    <p style="font-family:var(--mono); font-size:.8rem; color:var(--muted); line-height:2;">
+      <span style="color:var(--accent)">[2026.07]</span> Sistem identitas VIMNO di-deploy.<br>
+      <span style="color:var(--accent)">[STATUS]</span> Semua modul aktif dan berjalan normal.<br>
+      <span style="color:var(--accent)">[NEXT]</span> Terus membangun, terus belajar.
+    </p>
+  </div>
+</section>
+
+<footer>
+  <div class="f-word">// <b>VIMNO</b> SYSTEM v2026.07 — BUILT WITH FUTURE INTENT — <b>VIMNO</b> // EOF</div>
+  <a href="#hero" class="back-top">↑ BACK_TO_TOP</a>
+</footer>
+
+<script>
+(function(){
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- TICKER ---------- */
+  const items = [
+    ['VIMNO', '▲ +4.2%', 'up'],
+    ['VIMNO', '● SYSTEM ONLINE', ''],
+    ['VIMNO', '▼ -0.8%', 'down'],
+    ['VIMNO', '◆ BUILD 2026.07', ''],
+    ['VIMNO', '▲ +1.1%', 'up'],
+    ['VIMNO', '■ MODULES: 4/4 ACTIVE', ''],
+    ['VIMNO', '▲ +2.6%', 'up'],
+    ['VIMNO', '◆ LEARNING: TRUE', ''],
+  ];
+  const track = document.getElementById('tickerTrack');
+  function buildTicker(){
+    let html = '';
+    for(let r=0;r<2;r++){
+      items.forEach(([sym,val,cls])=>{
+        html += `<span><b>${sym}</b> <span class="${cls}">${val}</span></span>`;
+      });
+    }
+    track.innerHTML = html;
+  }
+  buildTicker();
+
+  /* ---------- CLOCK ---------- */
+  const clockEl = document.getElementById('clock');
+  function updateClock(){
+    const now = new Date();
+    const time = now.toLocaleTimeString('id-ID', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    const date = now.toLocaleDateString('id-ID', {day:'2-digit',month:'short',year:'numeric'}).toUpperCase();
+    clockEl.innerHTML = `<b>${time}</b><br><span style="font-size:.65rem">${date}</span>`;
+  }
+  updateClock();
+  setInterval(updateClock, 1000);
+
+  /* ---------- THEME TOGGLE ---------- */
+  const themeBtn = document.getElementById('themeToggle');
+  themeBtn.addEventListener('click', ()=>{
+    document.body.classList.toggle('theme-cyan');
+    themeBtn.textContent = document.body.classList.contains('theme-cyan') ? 'MODE: CYAN' : 'MODE: AMBER';
+  });
+
+  /* ---------- MOBILE NAV ---------- */
+  const burger = document.getElementById('burger');
+  const navLinks = document.getElementById('navLinks');
+  burger.addEventListener('click', ()=> navLinks.classList.toggle('open'));
+  navLinks.querySelectorAll('a').forEach(a=> a.addEventListener('click', ()=> navLinks.classList.remove('open')));
+
+  /* ---------- HERO GLOW (mouse follow) ---------- */
+  const hero = document.getElementById('hero');
+  const glow = document.getElementById('heroGlow');
+  hero.addEventListener('mousemove', (e)=>{
+    const r = hero.getBoundingClientRect();
+    glow.style.setProperty('--gx', ((e.clientX - r.left)/r.width*100) + '%');
+    glow.style.setProperty('--gy', ((e.clientY - r.top)/r.height*100) + '%');
+  });
+
+  /* ---------- GLITCH ---------- */
+  const wordmark = document.getElementById('wordmark');
+  if(!reduceMotion){
+    setInterval(()=>{
+      wordmark.classList.add('glitching');
+      setTimeout(()=> wordmark.classList.remove('glitching'), 180);
+    }, 3200);
+  }
+
+  /* ---------- TYPEWRITER TAGLINE ---------- */
+  const taglines = ['MAHASISWA.', 'PENGAMAT PASAR KRIPTO.', 'PENJELAJAH AI.', 'MEMBANGUN DIAM-DIAM.'];
+  const twEl = document.getElementById('typewriter');
+  let tIdx = 0, cIdx = 0, deleting = false;
+  function typeLoop(){
+    const full = taglines[tIdx];
+    if(!deleting){
+      cIdx++;
+      twEl.textContent = full.slice(0, cIdx);
+      if(cIdx === full.length){ deleting = true; setTimeout(typeLoop, 1400); return; }
+    } else {
+      cIdx--;
+      twEl.textContent = full.slice(0, cIdx);
+      if(cIdx === 0){ deleting = false; tIdx = (tIdx+1) % taglines.length; }
+    }
+    setTimeout(typeLoop, deleting ? 35 : 65);
+  }
+  typeLoop();
+
+  /* ---------- SCROLL REVEAL ---------- */
+  const revealEls = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(en=>{ if(en.isIntersecting){ en.target.classList.add('in-view'); io.unobser
